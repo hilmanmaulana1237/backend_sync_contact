@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
+const { kv } = require('@vercel/kv');
 
 const app = express();
 
@@ -19,8 +20,29 @@ const SUPERADMIN = {
   password: 'super123'
 };
 
-// In-memory database for Vercel
-let database = [];
+// Database key for Vercel KV
+const DB_KEY = 'contact_sync_database';
+
+// Helper functions for database
+async function readDatabase() {
+  try {
+    const data = await kv.get(DB_KEY);
+    return data || [];
+  } catch (error) {
+    console.error('Error reading database:', error);
+    return [];
+  }
+}
+
+async function writeDatabase(data) {
+  try {
+    await kv.set(DB_KEY, data);
+    return true;
+  } catch (error) {
+    console.error('Error writing database:', error);
+    return false;
+  }
+}
 
 // ========================
 // ENCRYPTION
@@ -78,13 +100,14 @@ app.get('/', (req, res) => {
   res.json({ message: 'Corporate Contact Sync API', status: 'running', secured: true });
 });
 
-app.post('/api/companies', (req, res) => {
+app.post('/api/companies', async (req, res) => {
   try {
     const { name, username, passcode } = req.body;
     if (!name || !username || !passcode) {
       return res.status(400).json({ error: 'Name, username, and passcode are required' });
     }
 
+    const database = await readDatabase();
     const existingUsername = database.find(c => c.username && c.username.toLowerCase() === username.toLowerCase());
     if (existingUsername) {
       return res.status(409).json({ error: 'Username already exists' });
@@ -99,6 +122,7 @@ app.post('/api/companies', (req, res) => {
     };
 
     database.push(newCompany);
+    await writeDatabase(database);
     res.status(201).json({
       message: 'Company registered successfully',
       company: { id: newCompany.id, name: newCompany.name, username: newCompany.username }
@@ -108,13 +132,14 @@ app.post('/api/companies', (req, res) => {
   }
 });
 
-app.post('/api/admin/login', (req, res) => {
+app.post('/api/admin/login', async (req, res) => {
   try {
     const { username, passcode } = req.body;
     if (!username || !passcode) {
       return res.status(400).json({ error: 'Username and passcode are required' });
     }
 
+    const database = await readDatabase();
     const company = database.find(c => {
       if (!c.username || c.username.toLowerCase() !== username.toLowerCase()) return false;
       const decryptedPasscode = decrypt(c.passcode);
@@ -151,8 +176,9 @@ app.post('/api/superadmin/login', (req, res) => {
   }
 });
 
-app.get('/api/superadmin/companies', (req, res) => {
+app.get('/api/superadmin/companies', async (req, res) => {
   try {
+    const database = await readDatabase();
     const companies = database.map(c => ({
       id: c.id, name: c.name, username: c.username, contactCount: c.contacts.length, contacts: c.contacts
     }));
@@ -162,23 +188,26 @@ app.get('/api/superadmin/companies', (req, res) => {
   }
 });
 
-app.delete('/api/superadmin/companies/:companyId', (req, res) => {
+app.delete('/api/superadmin/companies/:companyId', async (req, res) => {
   try {
     const { companyId } = req.params;
+    const database = await readDatabase();
     const companyIndex = database.findIndex(c => c.id === companyId);
     if (companyIndex === -1) return res.status(404).json({ error: 'Company not found' });
 
     const deletedCompany = database[companyIndex];
     database.splice(companyIndex, 1);
+    await writeDatabase(database);
     res.status(200).json({ message: 'Company deleted successfully', deletedCompany: { id: deletedCompany.id, name: deletedCompany.name } });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-app.delete('/api/superadmin/contacts/:companyId/:contactId', (req, res) => {
+app.delete('/api/superadmin/contacts/:companyId/:contactId', async (req, res) => {
   try {
     const { companyId, contactId } = req.params;
+    const database = await readDatabase();
     const companyIndex = database.findIndex(c => c.id === companyId);
     if (companyIndex === -1) return res.status(404).json({ error: 'Company not found' });
 
@@ -186,19 +215,21 @@ app.delete('/api/superadmin/contacts/:companyId/:contactId', (req, res) => {
     if (contactIndex === -1) return res.status(404).json({ error: 'Contact not found' });
 
     database[companyIndex].contacts.splice(contactIndex, 1);
+    await writeDatabase(database);
     res.status(200).json({ message: 'Contact deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-app.post('/api/contacts', (req, res) => {
+app.post('/api/contacts', async (req, res) => {
   try {
     const { companyId, name, phone, role, email } = req.body;
     if (!companyId || !name || !phone) {
       return res.status(400).json({ error: 'companyId, name, and phone are required' });
     }
 
+    const database = await readDatabase();
     const company = database.find(c => c.id === companyId);
     if (!company) return res.status(404).json({ error: 'Company not found' });
 
@@ -216,19 +247,21 @@ app.post('/api/contacts', (req, res) => {
     };
 
     company.contacts.push(newContact);
+    await writeDatabase(database);
     res.status(201).json({ message: 'Contact added successfully', contact: newContact });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-app.post('/api/sync', (req, res) => {
+app.post('/api/sync', async (req, res) => {
   try {
     const { companyName, passcode } = req.body;
     if (!companyName || !passcode) {
       return res.status(400).json({ error: 'companyName and passcode are required' });
     }
 
+    const database = await readDatabase();
     const company = database.find(c => {
       if (c.name.toLowerCase() !== companyName.toLowerCase()) return false;
       const decryptedPasscode = decrypt(c.passcode);
@@ -245,14 +278,20 @@ app.post('/api/sync', (req, res) => {
   }
 });
 
-app.get('/api/companies', (req, res) => {
-  const companiesList = database.map(c => ({ id: c.id, name: c.name, contactCount: c.contacts.length }));
-  res.json({ companies: companiesList });
+app.get('/api/companies', async (req, res) => {
+  try {
+    const database = await readDatabase();
+    const companiesList = database.map(c => ({ id: c.id, name: c.name, contactCount: c.contacts.length }));
+    res.json({ companies: companiesList });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
-app.get('/api/companies/:id/contacts', (req, res) => {
+app.get('/api/companies/:id/contacts', async (req, res) => {
   try {
     const { id } = req.params;
+    const database = await readDatabase();
     const company = database.find(c => c.id === id);
     if (!company) return res.status(404).json({ error: 'Company not found' });
     res.status(200).json({ companyName: company.name, contacts: company.contacts });
@@ -261,9 +300,10 @@ app.get('/api/companies/:id/contacts', (req, res) => {
   }
 });
 
-app.delete('/api/contacts/:companyId/:contactId', (req, res) => {
+app.delete('/api/contacts/:companyId/:contactId', async (req, res) => {
   try {
     const { companyId, contactId } = req.params;
+    const database = await readDatabase();
     const company = database.find(c => c.id === companyId);
     if (!company) return res.status(404).json({ error: 'Company not found' });
 
@@ -271,6 +311,7 @@ app.delete('/api/contacts/:companyId/:contactId', (req, res) => {
     if (contactIndex === -1) return res.status(404).json({ error: 'Contact not found' });
 
     company.contacts.splice(contactIndex, 1);
+    await writeDatabase(database);
     res.status(200).json({ message: 'Contact deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
