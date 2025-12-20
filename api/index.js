@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const { v4: uuidv4 } = require("uuid");
 const crypto = require("crypto");
-const { kv } = require("@vercel/kv");
+const { createClient } = require("redis");
 
 const app = express();
 
@@ -20,14 +20,36 @@ const SUPERADMIN = {
   password: "super123",
 };
 
-// Database key for Vercel KV
+// Redis connection
+const REDIS_URL = process.env.REDIS_URL || "redis://default:tzHpJhCPIvOURTAYdnqTe0QoNd2AUywR@redis-17846.c292.ap-southeast-1-1.ec2.cloud.redislabs.com:17846";
 const DB_KEY = "contact_sync_database";
+
+let redisClient = null;
+
+// Initialize Redis connection
+async function getRedisClient() {
+  if (!redisClient) {
+    redisClient = createClient({
+      url: REDIS_URL,
+      socket: {
+        reconnectStrategy: (retries) => Math.min(retries * 50, 500)
+      }
+    });
+
+    redisClient.on('error', (err) => console.error('Redis Client Error:', err));
+    redisClient.on('connect', () => console.log('✅ Connected to Redis'));
+    
+    await redisClient.connect();
+  }
+  return redisClient;
+}
 
 // Helper functions for database
 async function readDatabase() {
   try {
-    const data = await kv.get(DB_KEY);
-    return data || [];
+    const client = await getRedisClient();
+    const data = await client.get(DB_KEY);
+    return data ? JSON.parse(data) : [];
   } catch (error) {
     console.error("Error reading database:", error);
     return [];
@@ -36,7 +58,8 @@ async function readDatabase() {
 
 async function writeDatabase(data) {
   try {
-    await kv.set(DB_KEY, data);
+    const client = await getRedisClient();
+    await client.set(DB_KEY, JSON.stringify(data));
     return true;
   } catch (error) {
     console.error("Error writing database:", error);

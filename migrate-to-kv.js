@@ -1,16 +1,19 @@
-// Script untuk migrate data dari database.json ke Vercel KV
+// Script untuk migrate data dari database.json ke Redis
 // Jalankan dengan: node migrate-to-kv.js
 
-const { kv } = require("@vercel/kv");
+require('dotenv').config();
+const { createClient } = require("redis");
 const fs = require("fs");
 const path = require("path");
 
 const DB_KEY = "contact_sync_database";
 const DATABASE_FILE = path.join(__dirname, "database.json");
+const REDIS_URL = process.env.REDIS_URL;
 
 async function migrateData() {
+  let client;
   try {
-    console.log("🔄 Memulai migrasi data ke Vercel KV...");
+    console.log("🔄 Memulai migrasi data ke Redis...");
 
     // Baca data dari database.json
     if (!fs.existsSync(DATABASE_FILE)) {
@@ -23,17 +26,27 @@ async function migrateData() {
 
     console.log(`📊 Ditemukan ${companies.length} perusahaan`);
 
-    // Upload ke Vercel KV
-    await kv.set(DB_KEY, companies);
+    // Connect to Redis
+    client = createClient({ url: REDIS_URL });
+    await client.connect();
+    console.log("✅ Terhubung ke Redis");
+
+    // Upload ke Redis
+    await client.set(DB_KEY, JSON.stringify(companies));
 
     console.log("✅ Migrasi berhasil!");
-    console.log("📦 Data berhasil disimpan ke Vercel KV");
+    console.log("📦 Data berhasil disimpan ke Redis");
 
     // Verifikasi
-    const savedData = await kv.get(DB_KEY);
-    console.log(`✅ Verifikasi: ${savedData.length} perusahaan tersimpan`);
+    const savedData = await client.get(DB_KEY);
+    const parsedData = JSON.parse(savedData);
+    console.log(`✅ Verifikasi: ${parsedData.length} perusahaan tersimpan`);
   } catch (error) {
     console.error("❌ Error saat migrasi:", error);
+  } finally {
+    if (client) {
+      await client.quit();
+    }
   }
 }
 

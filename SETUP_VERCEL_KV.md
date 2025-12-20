@@ -1,56 +1,49 @@
-# Setup Vercel KV untuk Contact Sync App
+# Setup Redis untuk Contact Sync App
 
 ## Masalah yang Diperbaiki
 
 ❌ **Sebelumnya**: Data hilang setelah beberapa menit karena menggunakan in-memory database  
-✅ **Sekarang**: Data tersimpan permanen menggunakan Vercel KV (Redis)
+✅ **Sekarang**: Data tersimpan permanen menggunakan Redis Cloud
 
-## Langkah Setup
+## Setup yang Sudah Dilakukan ✅
 
-### 1. Buat Vercel KV Database
+### 1. Redis Database
+- ✅ Redis Cloud dari RedisLabs sudah dikonfigurasi
+- ✅ Region: ap-southeast-1 (Singapore)
+- ✅ Connection string sudah tersimpan
+
+### 2. Backend Code
+- ✅ Package `redis` sudah terinstall
+- ✅ Code sudah diupdate untuk menggunakan Redis
+- ✅ Environment variable `REDIS_URL` sudah dikonfigurasi
+
+### 3. Data Migration
+- ✅ Data dari `database.json` sudah dimigrate ke Redis
+- ✅ 2 perusahaan berhasil tersimpan
+
+## Langkah Deploy ke Vercel
+
+### 1. Tambahkan Environment Variable di Vercel
 
 1. Buka dashboard Vercel: https://vercel.com/dashboard
-2. Pilih project "ContactSyncApp" atau project backend Anda
-3. Klik tab **Storage**
-4. Klik **Create Database**
-5. Pilih **KV (Redis)**
-6. Beri nama: `contact-sync-db`
-7. Pilih region yang dekat dengan lokasi Anda (misal: Singapore)
-8. Klik **Create**
-
-### 2. Connect Database ke Project
-
-1. Setelah database dibuat, klik **Connect to Project**
 2. Pilih project backend Anda
-3. Klik **Connect**
-4. Environment variables otomatis ditambahkan:
-   - `KV_URL`
-   - `KV_REST_API_URL`
-   - `KV_REST_API_TOKEN`
-   - `KV_REST_API_READ_ONLY_TOKEN`
+3. Klik **Settings** → **Environment Variables**
+4. Tambahkan variable baru:
+   - **Name**: `REDIS_URL`
+   - **Value**: `redis://default:tzHpJhCPIvOURTAYdnqTe0QoNd2AUywR@redis-17846.c292.ap-southeast-1-1.ec2.cloud.redislabs.com:17846`
+   - **Environment**: Production, Preview, Development (centang semua)
+5. Klik **Save**
 
-### 3. Deploy Ulang
+### 2. Deploy ke Vercel
 
 ```bash
 # Push perubahan code ke GitHub
 git add .
-git commit -m "Migrate to Vercel KV for persistent storage"
+git commit -m "Use Redis Cloud for persistent storage"
 git push
 
 # Atau deploy manual via Vercel CLI
 vercel --prod
-```
-
-### 4. Migrate Data yang Sudah Ada (Opsional)
-
-Jika Anda punya data di `database.json`, migrate dengan cara:
-
-```bash
-# Set environment variables dari Vercel dashboard
-# Copy KV_REST_API_URL dan KV_REST_API_TOKEN
-
-# Jalankan script migrasi
-node migrate-to-kv.js
 ```
 
 ## Verifikasi
@@ -62,29 +55,31 @@ Setelah deploy, coba:
 3. Coba login atau sync lagi
 4. ✅ Data seharusnya masih ada!
 
-## Keuntungan Vercel KV
+## Keuntungan Redis Cloud
 
-- ✅ Data persisten (tidak hilang)
-- ✅ Cepat (Redis-based)
-- ✅ Gratis untuk usage kecil
-- ✅ Auto-scaling
-- ✅ Terintegrasi dengan Vercel
+- ✅ Data persisten (tidak hilang selamanya)
+- ✅ Super cepat (in-memory database)
+- ✅ Gratis 30MB storage
+- ✅ Auto-failover & high availability
+- ✅ Support SSL/TLS encryption
 
 ## Troubleshooting
 
-### Jika masih hilang:
+### Jika masih hilang setelah deploy:
 
 1. Cek environment variables di Vercel Dashboard → Settings → Environment Variables
-2. Pastikan `KV_URL`, `KV_REST_API_URL`, dan `KV_REST_API_TOKEN` ada
+2. Pastikan `REDIS_URL` sudah ditambahkan
 3. Redeploy project
 
-### Jika error saat akses:
+### Jika error connection:
 
-1. Pastikan package `@vercel/kv` sudah terinstall
+1. Pastikan Redis URL benar dan Redis server aktif
 2. Check logs: `vercel logs <deployment-url>`
+3. Test koneksi lokal dengan: `node migrate-to-kv.js`
 
 ## Catatan Penting
 
 - ⚠️ Jangan commit file `.env` ke Git (sudah di `.gitignore`)
-- ⚠️ Environment variables otomatis tersedia di production
-- ⚠️ Untuk local development, copy environment variables dari Vercel Dashboard ke `.env`
+- ✅ Environment variable `REDIS_URL` harus ditambahkan di Vercel Dashboard
+- ✅ Data sudah tersimpan di Redis dan siap digunakan
+
