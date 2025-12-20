@@ -1,0 +1,39 @@
+[
+  {
+    "id": "46d11e5f-b395-466b-ab35-4068f8437062",
+    "name": "UIN Sunan Gunung Djati",
+    "username": "uin_sgd",
+    "passcode": "12345",
+    "contacts": [
+      {
+        "id": "852c5e47-5c3c-4516-aa20-71c79f111a99",
+        "name": "Pak Wildan",
+        "phone": "087827718245",
+        "role": "Operasional",
+        "email": "wildan@gmail.com"
+      },
+      {
+        "id": "99815fbf-465b-4ddd-af3a-7fa0b476c2d5",
+        "name": "Pak Dudin",
+        "phone": "087827718244",
+        "role": "TU",
+        "email": "dudin@gmail.com"
+      }
+    ]
+  },
+  {
+    "id": "77f0ad17-4a96-4a06-a13e-cabe258b80b3",
+    "name": "ITH (institut Teknologi Hilman)",
+    "username": "ith_hilman",
+    "passcode": "12345",
+    "contacts": [
+      {
+        "id": "4072b35b-7f5e-43fe-8ac4-b0f011faa5e6",
+        "name": "Idha Hamidaturrosadi",
+        "phone": "089663166263",
+        "role": "Operasional",
+        "email": "idha@gmail.com"
+      }
+    ]
+  }
+]
