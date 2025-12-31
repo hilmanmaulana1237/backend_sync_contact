@@ -122,7 +122,7 @@ app.use("/api", validateApiKey);
 // ========================
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/index.html"));
+  res.redirect("/index.html");
 });
 
 app.post("/api/companies", async (req, res) => {
