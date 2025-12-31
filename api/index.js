@@ -38,7 +38,7 @@ async function getRedisClient() {
 
     redisClient.on('error', (err) => console.error('Redis Client Error:', err));
     redisClient.on('connect', () => console.log('✅ Connected to Redis'));
-    
+
     await redisClient.connect();
   }
   return redisClient;
@@ -119,13 +119,7 @@ app.use("/api", validateApiKey);
 // ENDPOINTS
 // ========================
 
-app.get("/", (req, res) => {
-  res.json({
-    message: "Corporate Contact Sync API",
-    status: "running",
-    secured: true,
-  });
-});
+// Root route is handled by Vercel static serving (public/index.html)
 
 app.post("/api/companies", async (req, res) => {
   try {
