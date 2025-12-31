@@ -266,12 +266,12 @@
 
         // Check Auth
         if (!localStorage.getItem('isAuthenticated')) {
-            window.location.href = '/index.html';
+            window.location.href = '/login.html';
         }
 
         function logout() {
             localStorage.removeItem('isAuthenticated');
-            window.location.href = '/index.html';
+            window.location.href = '/login.html';
         }
 
         async function fetchCompanies() {

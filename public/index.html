@@ -4,125 +4,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Superadmin Login | ContactSync</title>
+    <title>ContactSync - Corporate Contact Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <style>
         body {
             font-family: 'Outfit', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        }
-
-        .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .input-glass {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #0f172a;
             color: white;
+            overflow-x: hidden;
         }
 
-        .input-glass:focus {
-            border-color: #6366f1;
-            outline: none;
-            background: rgba(255, 255, 255, 0.1);
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .hero-bg {
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 100%);
+            position: relative;
+        }
+
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: #4f46e5;
+            filter: blur(150px);
+            opacity: 0.2;
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .hero-bg::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: #9333ea;
+            filter: blur(150px);
+            opacity: 0.15;
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
     </style>
 </head>
 
-<body class="h-screen flex items-center justify-center overflow-hidden">
-    <script>
-        // Check session immediately
-        if (localStorage.getItem('isAuthenticated') === 'true') {
-            window.location.href = '/dashboard.html';
-        }
-    </script>
+<body class="antialiased selection:bg-indigo-500 selection:text-white">
 
-    <!-- Decorative Elements -->
-    <div class="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-indigo-600 rounded-full blur-[120px] opacity-30">
-    </div>
-    <div
-        class="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-purple-600 rounded-full blur-[120px] opacity-30">
-    </div>
-
-    <div class="glass p-10 rounded-2xl w-full max-w-md mx-4 relative z-10 shadow-2xl">
-        <div class="text-center mb-8">
-            <div
-                class="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-xl mx-auto flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/30">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 glass-nav transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+                <span class="text-xl font-bold tracking-tight">Contact<span class="text-indigo-400">Sync</span></span>
             </div>
-            <h1 class="text-3xl font-bold text-white mb-2">Superadmin</h1>
-            <p class="text-slate-400">Manage your corporate clients securely</p>
+            <div class="flex items-center gap-4">
+                <a href="/login.html"
+                    class="px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl font-medium transition-all text-sm">Log
+                    In</a>
+                <a href="/login.html"
+                    class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium shadow-lg shadow-indigo-500/25 transition-all transform hover:-translate-y-0.5 text-sm">Get
+                    Started</a>
+            </div>
         </div>
+    </nav>
 
-        <form id="loginForm" class="space-y-6">
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-2">Username</label>
-                <input type="text" id="username" class="w-full px-4 py-3 rounded-xl input-glass transition-all"
-                    placeholder="Enter username" required>
+    <!-- Hero Section -->
+    <main class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden hero-bg min-h-screen flex items-center">
+        <div class="max-w-7xl mx-auto px-6 relative z-10 w-full">
+            <div class="flex flex-col lg:flex-row items-center gap-16">
+                <!-- Text Content -->
+                <div class="flex-1 text-center lg:text-left" data-aos="fade-up">
+                    <div
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-sm">
+                        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                        <span class="text-xs font-medium text-slate-300">v1.0 is Live</span>
+                    </div>
+                    <h1 class="text-5xl lg:text-7xl font-bold leading-tight mb-8">
+                        Sync Contacts across <br>
+                        <span class="text-gradient">Your Entire Company</span>
+                    </h1>
+                    <p class="text-xl text-slate-400 mb-10 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                        Effortlessly manage and distribute corporate contacts to all employee devices securely.
+                        No more manual saving. Real-time updates.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+                        <a href="/login.html"
+                            class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-2xl shadow-xl shadow-indigo-600/20 transition-all transform hover:scale-[1.02]">
+                            Go to Dashboard
+                        </a>
+                        <a href="#features"
+                            class="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl font-semibold transition-all">
+                            Learn More
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Visual/Mockup -->
+                <div class="flex-1 w-full max-w-lg lg:max-w-xl" data-aos="fade-left" data-aos-delay="100">
+                    <div class="relative group">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-3xl blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-500">
+                        </div>
+                        <div
+                            class="relative bg-[#1e293b]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+                            <!-- Fake UI Elements -->
+                            <div class="flex items-center justify-between mb-8">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold">
+                                        IT</div>
+                                    <div>
+                                        <div class="h-2.5 w-24 bg-white/10 rounded-full mb-2"></div>
+                                        <div class="h-2 w-16 bg-white/5 rounded-full"></div>
+                                    </div>
+                                </div>
+                                <div class="px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-medium">
+                                    Synced</div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-slate-700"></div>
+                                    <div class="flex-1">
+                                        <div class="h-2.5 w-32 bg-white/10 rounded-full mb-2"></div>
+                                        <div class="h-2 w-20 bg-white/5 rounded-full"></div>
+                                    </div>
+                                </div>
+                                <div class="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-slate-700"></div>
+                                    <div class="flex-1">
+                                        <div class="h-2.5 w-28 bg-white/10 rounded-full mb-2"></div>
+                                        <div class="h-2 w-24 bg-white/5 rounded-full"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs">
+                                        NEW</div>
+                                    <div class="flex-1">
+                                        <div class="h-2.5 w-32 bg-indigo-200/20 rounded-full mb-2"></div>
+                                        <div class="h-2 w-16 bg-indigo-200/10 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-2">Password</label>
-                <input type="password" id="password" class="w-full px-4 py-3 rounded-xl input-glass transition-all"
-                    placeholder="Enter password" required>
-            </div>
-            <button type="submit"
-                class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/25 transform hover:-translate-y-0.5"
-                id="loginBtn">
-                Sign In
-            </button>
-        </form>
-    </div>
+        </div>
+    </main>
+
+    <footer class="border-t border-white/5 bg-[#0f172a] py-12">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p class="text-slate-500 text-sm">© 2024 ContactSync App. All rights reserved.</p>
+        </div>
+    </footer>
 
     <script>
-        const API_KEY = 'CSApp2024SecretKey!@#$';
+        AOS.init({ duration: 800, once: true });
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('loginBtn');
-            const originalText = btn.innerText;
-            btn.innerText = 'Verifying...';
-            btn.disabled = true;
-            btn.classList.add('opacity-75');
-
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                const response = await fetch('/api/superadmin/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': API_KEY
-                    },
-                    body: JSON.stringify({ username, password })
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    localStorage.setItem('isAuthenticated', 'true');
-                    window.location.href = '/dashboard.html';
-                } else {
-                    alert(result.error);
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                alert('Connection refused. Is the server running?');
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
-                btn.classList.remove('opacity-75');
-            }
-        });
+        // Auto-redirect if already logged in (optional, kept for convenience)
+        if (localStorage.getItem('isAuthenticated') === 'true') {
+            // Uncomment if you want auto-redirect from landing page too, 
+            // BUT user might want to see landing page. Let's make the "Go to Dashboard" button handle it.
+            // Actually, usually landing page is visible even if logged in.
+            // But let's change the button text if logged in.
+            const btn = document.querySelector('a[href="/login.html"]');
+            if (btn) btn.innerText = "Open Dashboard";
+        }
     </script>
 </body>
 
