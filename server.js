@@ -107,14 +107,7 @@ function writeDatabase(data) {
 // PUBLIC ENDPOINTS
 // ========================
 
-app.get('/', (req, res) => {
-    res.json({
-        message: 'Corporate Contact Sync API',
-        status: 'running',
-        secured: true,
-        supportEmail: SUPPORT_EMAIL
-    });
-});
+// Root route is handled by express.static('public') referencing index.html
 
 // Get support email for forgot password
 app.get('/api/support', (req, res) => {
