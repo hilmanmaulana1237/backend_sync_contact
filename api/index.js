@@ -4,14 +4,12 @@ const cors = require("cors");
 const { v4: uuidv4 } = require("uuid");
 const crypto = require("crypto");
 const { createClient } = require("redis");
-const path = require("path");
 
 const app = express();
 
-// Serve static files from public directory
-app.use(express.static(path.join(__dirname, "../public")));
-app.use(cors());
-app.use(bodyParser.json());
+// ========================
+// SECURITY CONFIG
+// ========================
 
 const API_KEY = "CSApp2024SecretKey!@#$";
 const ENCRYPTION_KEY = crypto.scryptSync("ContactSyncApp2024", "salt", 32);
@@ -121,9 +119,7 @@ app.use("/api", validateApiKey);
 // ENDPOINTS
 // ========================
 
-app.get("/", (req, res) => {
-  res.redirect("/index.html");
-});
+// Root/Static routing is handled by Vercel via vercel.json -> public/ folder
 
 app.post("/api/companies", async (req, res) => {
   try {
