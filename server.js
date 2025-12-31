@@ -60,6 +60,7 @@ function decrypt(text) {
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static('public')); // Serve static files from 'public' directory
 
 function validateApiKey(req, res, next) {
     const apiKey = req.headers['x-api-key'];

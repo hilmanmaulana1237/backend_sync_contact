@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | Superadmin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #0f172a;
+            color: white;
+        }
+
+        .sidebar-glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-glass {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 sidebar-glass flex flex-col justify-between hidden md:flex">
+        <div class="p-6">
+            <div class="flex items-center gap-3 mb-10">
+                <div
+                    class="w-10 h-10 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i data-lucide="zap" class="text-white w-6 h-6"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight">ContactSync</h1>
+            </div>
+
+            <nav class="space-y-2">
+                <a href="dashboard.html"
+                    class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800/50 hover:text-white rounded-xl transition-all">
+                    <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                    <span class="font-medium">Companies</span>
+                </a>
+                <a href="contacts.html"
+                    class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800/50 hover:text-white rounded-xl transition-all">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                    <span class="font-medium">Contacts (Global)</span>
+                </a>
+                <a href="settings.html"
+                    class="flex items-center gap-3 px-4 py-3 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    <span class="font-medium">Settings</span>
+                </a>
+            </nav>
+        </div>
+        <div class="p-6">
+            <button onclick="localStorage.removeItem('isAuthenticated'); window.location.href='/index.html'"
+                class="flex items-center gap-2 text-slate-400 hover:text-red-400 transition-colors w-full px-4 py-2">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                <span>Sign Out</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto bg-[#0f172a] relative">
+        <div class="p-8 max-w-7xl mx-auto relative z-10">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold">Settings</h2>
+                    <p class="text-slate-400">System configuration and support.</p>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="card-glass p-8 rounded-2xl">
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="shield" class="w-5 h-5 text-indigo-400"></i>
+                        Superadmin Account
+                    </h3>
+                    <div class="space-y-4 text-slate-300">
+                        <div class="flex justify-between border-b border-slate-700/50 pb-2">
+                            <span>Username</span>
+                            <span class="font-mono text-white">superadmin</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-700/50 pb-2">
+                            <span>Password</span>
+                            <span class="font-mono text-white">••••••••</span>
+                        </div>
+                        <div class="pt-2">
+                            <p class="text-xs text-yellow-500 bg-yellow-500/10 p-3 rounded-lg">
+                                Note: Root credentials are managed in server configuration.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-glass p-8 rounded-2xl">
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="info" class="w-5 h-5 text-blue-400"></i>
+                        System Info
+                    </h3>
+                    <div class="space-y-4 text-slate-300">
+                        <div class="flex justify-between border-b border-slate-700/50 pb-2">
+                            <span>App Version</span>
+                            <span class="text-white">v1.0.0</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-700/50 pb-2">
+                            <span>Server Status</span>
+                            <span class="text-emerald-400 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                Online
+                            </span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-700/50 pb-2">
+                            <span>Database</span>
+                            <span class="text-white">Local JSON</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        if (!localStorage.getItem('isAuthenticated')) window.location.href = '/index.html';
+    </script>
+</body>
+
+</html>

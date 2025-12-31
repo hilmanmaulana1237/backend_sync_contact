@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Contacts | Superadmin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #0f172a;
+            color: white;
+        }
+
+        .sidebar-glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-glass {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 sidebar-glass flex flex-col justify-between hidden md:flex">
+        <div class="p-6">
+            <div class="flex items-center gap-3 mb-10">
+                <div
+                    class="w-10 h-10 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i data-lucide="zap" class="text-white w-6 h-6"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight">ContactSync</h1>
+            </div>
+
+            <nav class="space-y-2">
+                <a href="dashboard.html"
+                    class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800/50 hover:text-white rounded-xl transition-all">
+                    <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                    <span class="font-medium">Companies</span>
+                </a>
+                <a href="contacts.html"
+                    class="flex items-center gap-3 px-4 py-3 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                    <span class="font-medium">Contacts (Global)</span>
+                </a>
+                <a href="settings.html"
+                    class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800/50 hover:text-white rounded-xl transition-all">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    <span class="font-medium">Settings</span>
+                </a>
+            </nav>
+        </div>
+        <div class="p-6">
+            <button onclick="localStorage.removeItem('isAuthenticated'); window.location.href='/index.html'"
+                class="flex items-center gap-2 text-slate-400 hover:text-red-400 transition-colors w-full px-4 py-2">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                <span>Sign Out</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto bg-[#0f172a] relative">
+        <div class="p-8 max-w-7xl mx-auto relative z-10">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold">Global Contacts</h2>
+                    <p class="text-slate-400">View and manage contacts across all companies.</p>
+                </div>
+            </header>
+
+            <!-- Filter/Search -->
+            <div class="card-glass p-4 rounded-xl mb-6 flex gap-4">
+                <div class="relative flex-1">
+                    <i data-lucide="search" class="absolute left-3 top-2.5 w-5 h-5 text-slate-500"></i>
+                    <input type="text" id="searchInput" placeholder="Search contacts..."
+                        class="w-full bg-slate-800/50 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <select id="companyFilter"
+                    class="bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    <option value="">All Companies</option>
+                </select>
+            </div>
+
+            <!-- Table -->
+            <div class="card-glass rounded-2xl overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-800/50 text-slate-400 text-sm uppercase">
+                            <th class="p-5 font-semibold">Name</th>
+                            <th class="p-5 font-semibold">Phone</th>
+                            <th class="p-5 font-semibold">Company</th>
+                            <th class="p-5 font-semibold">Role</th>
+                            <th class="p-5 font-semibold text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/50" id="contactsTableBody">
+                        <tr>
+                            <td colspan="5" class="p-8 text-center text-slate-500">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        const API_KEY = 'CSApp2024SecretKey!@#$';
+        if (!localStorage.getItem('isAuthenticated')) window.location.href = '/index.html';
+
+        let allContacts = [];
+
+        async function init() {
+            try {
+                // 1. Fetch Companies to get all contacts
+                const response = await fetch('/api/superadmin/companies', { headers: { 'x-api-key': API_KEY } });
+                const data = await response.json();
+
+                const companySelect = document.getElementById('companyFilter');
+                allContacts = [];
+
+                data.companies.forEach(company => {
+                    // Populate Filter
+                    const option = document.createElement('option');
+                    option.value = company.name;
+                    option.textContent = company.name;
+                    companySelect.appendChild(option);
+
+                    // Flatten contacts
+                    company.contacts.forEach(contact => {
+                        allContacts.push({
+                            ...contact,
+                            companyId: company.id,
+                            companyName: company.name
+                        });
+                    });
+                });
+
+                renderContacts(allContacts);
+
+            } catch (error) {
+                document.getElementById('contactsTableBody').innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Error loading data</td></tr>';
+            }
+        }
+
+        function renderContacts(contacts) {
+            const tbody = document.getElementById('contactsTableBody');
+            tbody.innerHTML = '';
+
+            if (contacts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500">No contacts found</td></tr>';
+                return;
+            }
+
+            contacts.forEach(c => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-white/5 transition-colors';
+                row.innerHTML = `
+                    <td class="p-5 font-medium text-white">${c.name}</td>
+                    <td class="p-5 text-slate-300 font-mono text-sm">${c.phone}</td>
+                    <td class="p-5"><span class="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs">${c.companyName}</span></td>
+                    <td class="p-5 text-slate-400 text-sm">${c.role || '-'}</td>
+                    <td class="p-5 text-right">
+                         <button onclick="deleteContact('${c.companyId}', '${c.id}')" class="text-slate-400 hover:text-red-400 transition-colors">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+        // Filtering
+        const searchInput = document.getElementById('searchInput');
+        const companyFilter = document.getElementById('companyFilter');
+
+        function filterData() {
+            const query = searchInput.value.toLowerCase();
+            const company = companyFilter.value;
+
+            const filtered = allContacts.filter(c => {
+                const matchesSearch = c.name.toLowerCase().includes(query) || c.phone.includes(query);
+                const matchesCompany = company === "" || c.companyName === company;
+                return matchesSearch && matchesCompany;
+            });
+            renderContacts(filtered);
+        }
+
+        searchInput.addEventListener('input', filterData);
+        companyFilter.addEventListener('change', filterData);
+
+        // Delete Contact Logic
+        async function deleteContact(companyId, contactId) {
+            if (!confirm("Are you sure?")) return;
+            try {
+                const response = await fetch(`/api/superadmin/contacts/${companyId}/${contactId}`, {
+                    method: 'DELETE',
+                    headers: { 'x-api-key': API_KEY }
+                });
+                if (response.ok) {
+                    init(); // Reload
+                } else {
+                    alert("Failed to delete");
+                }
+            } catch (e) { alert("Error"); }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
