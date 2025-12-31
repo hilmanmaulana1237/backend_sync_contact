@@ -6,12 +6,15 @@
             "destination": "/api/index.js"
         },
         {
-            "source": "/",
-            "destination": "/public/index.html"
-        },
-        {
             "source": "/(.*)",
             "destination": "/public/$1"
+        }
+    ],
+    "redirects": [
+        {
+            "source": "/",
+            "destination": "/index.html",
+            "permanent": false
         }
     ]
 }
